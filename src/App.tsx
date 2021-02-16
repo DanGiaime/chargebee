@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { RouteComponentProps } from "react-router";
-import './App.scss';
 import axios from "axios";
 
 let API_KEY = process.env.API_KEY;

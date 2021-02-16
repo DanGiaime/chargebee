@@ -2,7 +2,7 @@ import React from 'react';
 import { render } from "react-dom";
 import { Router, Route, Switch } from 'react-router'
 import { createBrowserHistory } from "history";
-import './App.scss';
+import './App.css';
 import CheckoutNew from './App';
 
 const history = createBrowserHistory();
