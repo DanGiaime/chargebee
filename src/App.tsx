@@ -3,11 +3,11 @@ import { RouteComponentProps } from "react-router";
 import axios from "axios";
 
 let API_KEY = process.env.API_KEY;
-let BACKEND_URL = process.env.BACKEND_URL;
+let BACKEND_URL = "https://chargbee-backend.herokuapp.com";
 
 axios.defaults.headers.post["Content-Type"] =
   "application/x-www-form-urlencoded";
-axios.defaults.headers.post["Authorization"] = `Bearer ${API_KEY}`;
+// axios.defaults.headers.post["Authorization"] = `Bearer ${API_KEY}`;
 
 const MAX_PRICE = "250";
 
@@ -294,7 +294,7 @@ class CheckoutNew extends Component<RouteComponentProps<{}>, State> {
           };
           return axios
             .post(
-              `${BACKEND_URL}/api/pay/generate_checkout_new_url`,
+              `${BACKEND_URL}/api/generate_checkout_new_url`,
               urlEncode(data)
             )
             .then((response) => response.data);
@@ -414,7 +414,7 @@ class CheckoutNew extends Component<RouteComponentProps<{}>, State> {
                     <label className="form-check-label">
                       I agree to the{" "}
                       <a
-                        href="#"
+                        href="javascript:void(0);"
                         onClick={() => {
                           //@ts-ignore
                           document.querySelector("#contract").style.display =
