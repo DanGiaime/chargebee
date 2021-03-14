@@ -5,7 +5,7 @@ import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-reac
 import { MsalContext } from "@azure/msal-react";
 
 let API_KEY = process.env.API_KEY;
-let BACKEND_URL = "https://chargbee-backend.herokuapp.com";
+let BACKEND_URL = "https://sponsored-payment-test.herokuapp.com/";
 
 axios.defaults.headers.post["Content-Type"] =
   "application/x-www-form-urlencoded";
