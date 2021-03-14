@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { RouteComponentProps } from "react-router";
 import axios from "axios";
+import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
+import { MsalContext } from "@azure/msal-react";
 
 let API_KEY = process.env.API_KEY;
 let BACKEND_URL = "https://chargbee-backend.herokuapp.com";
@@ -46,6 +48,8 @@ type State = {
 };
 
 class CheckoutNew extends Component<RouteComponentProps<{}>, State> {
+  static contextType = MsalContext;
+
   constructor(props: RouteComponentProps<{}>) {
     super(props);
 
@@ -447,6 +451,7 @@ class CheckoutNew extends Component<RouteComponentProps<{}>, State> {
                   )}
                 </div>
                 <div className="form-group">
+                <AuthenticatedTemplate>
                   <input
                     type="submit"
                     className="submit-btn btn btn-success btn-lg"
@@ -460,6 +465,12 @@ class CheckoutNew extends Component<RouteComponentProps<{}>, State> {
                       width: 250,
                     }}
                   />
+            </AuthenticatedTemplate>
+            <UnauthenticatedTemplate>
+              <div onClick={() => this.context.instance.loginPopup()} >
+                Help pls sign in
+                </div>
+            </UnauthenticatedTemplate>
                 </div>
               </div>
             </form>
