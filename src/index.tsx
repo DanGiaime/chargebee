@@ -23,11 +23,32 @@ const msalConfig = {
 
 const pca = new PublicClientApplication(msalConfig);
 
+const acquireAccessToken = async (msalInstance=pca) => {
+  const activeAccount = msalInstance.getActiveAccount(); // This will only return a non-null value if you have logic somewhere else that calls the setActiveAccount API
+  const accounts = msalInstance.getAllAccounts();
+
+  if (!activeAccount && accounts.length === 0) {
+      /*
+      * User is not signed in. Throw error or wait for user to login.
+      * Do not attempt to log a user in outside of the context of MsalProvider
+      */   
+  }
+  const request = {
+      scopes: ["delight_default_access"],
+      account: activeAccount || accounts[0]
+  };
+
+  const authResult = await msalInstance.acquireTokenSilent(request);
+
+  return authResult.accessToken
+};
+
 render(
   <MsalProvider instance={pca}>
     <Router history={history}>
       <Switch>
-        <Route path="/" exact component={CheckoutNew} />
+        {/* @ts-ignore */}
+        <Route path="/" exact render={ () => {return (<CheckoutNew getToken={acquireAccessToken}  />);}} />
       </Switch>
     </Router>
   </MsalProvider>,

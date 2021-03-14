@@ -3,6 +3,7 @@ import { RouteComponentProps } from "react-router";
 import axios from "axios";
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 import { MsalContext } from "@azure/msal-react";
+import { PublicClientApplication } from "@azure/msal-browser";
 
 let API_KEY = process.env.API_KEY;
 let BACKEND_URL = "https://sponsored-payment-test.herokuapp.com/";
@@ -49,13 +50,14 @@ type State = {
 
 class CheckoutNew extends Component<RouteComponentProps<{}>, State> {
   static contextType = MsalContext;
+  
 
   constructor(props: RouteComponentProps<{}>) {
     super(props);
 
     //@ts-ignore
     let planUrlParam =
-      new URLSearchParams(this.props.location.search).get("token") || MAX_PRICE;
+      new URLSearchParams(this?.props?.location?.search)?.get("token") || MAX_PRICE;
     let planAmount =
       planUrlParam === MAX_PRICE ? MAX_PRICE : atob(planUrlParam);
 
@@ -285,41 +287,60 @@ class CheckoutNew extends Component<RouteComponentProps<{}>, State> {
       this.sendEmail(this.generateContractString(true));
       this.setState({ loading: true });
       //@ts-ignore
-
-      this.state.cbInstance.openCheckout({
-        hostedPage: async () => {
-          var data = {
-            first_name: this.state.first_name,
-            last_name: this.state.last_name,
-            email: this.state.email,
-            phone: this.state.phone,
-            company: this.state.company,
-            plan_id: "flat-fee-" + this.state.contract_price,
-          };
-          return axios
-            .post(
-              `${BACKEND_URL}/api/generate_checkout_new_url`,
-              urlEncode(data)
-            )
-            .then((response) => response.data);
-        },
-        success(hostedPageId: number) {
-          // console.log(hostedPageId);
-        },
-        close: () => {
-          this.setState({ loading: false });
-          if (this.state.step == "thankyou_screen") {
-            window.location.href = "https://delightrewards.com/business.html";
-          }
-          // console.log("checkout new closed");
-        },
-
-        step: (step: string) => {
-          this.setState({
-            step: step,
-          });
-        },
+      var request = {
+        scopes: ["delight_default_access"]
+      };
+      
+      //@ts-ignore
+      this.props.acquireAccessToken().then(tokenResponse => {
+        this.state.cbInstance.openCheckout({
+          hostedPage: async () => {
+            var data = {
+              first_name: this.state.first_name,
+              last_name: this.state.last_name,
+              email: this.state.email,
+              phone: this.state.phone,
+              company: this.state.company,
+              plan_id: "flat-fee-" + this.state.contract_price,
+            };
+            return axios
+              .post(
+                `${BACKEND_URL}/api/test`,
+                urlEncode(data),
+                {
+                  headers: {
+                    "Authorization": `Bearer ${tokenResponse}`
+                  }
+                }
+              )
+              .then((response) => response.data);
+          },
+          success(hostedPageId: number) {
+            // console.log(hostedPageId);
+          },
+          close: () => {
+            this.setState({ loading: false });
+            if (this.state.step == "thankyou_screen") {
+              window.location.href = "https://delightrewards.com/business.html";
+            }
+            // console.log("checkout new closed");
+          },
+  
+          step: (step: string) => {
+            this.setState({
+              step: step,
+            });
+          },
+        });
+      }).catch(async (error: any) => {
+          // if (error instanceof InteractionRequiredAuthError) {
+          //     // fallback to interaction when silent call fails
+          //     return msalInstance.acquireTokenPopup(request);
+          // }
+      }).catch((error: any) => {
+      //     handleError(error);
       });
+      
       event.preventDefault();
     } else {
       alert("Please fill in the fields to continue.");
